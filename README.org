@@ -1,0 +1,95 @@
+I was a fan of [[https://manybot.io/][Manybot]] in telegram. But it only can subscribe 5 feeds and 2
+twitter's account. Therefore, I want to build my own manybots. It can let you
+subscribe as many feeds or twitter as you want. But right now, It does not
+support to send subscription to channel.
+
+* Development
+1. change the =dev.exs.example= to =dev.exs=
+
+2. add your twitter =access_token= and telegram's =token= to your =dev.exs=
+
+3. Download [[https://ngrok.com/][ngrok - secure introspectable tunnels to localhost]]
+
+#+BEGIN_COMMENT
+ngrok http 4000
+#+END_COMMENT
+
+#+BEGIN_SRC elixir
+iex -S mix phx.server
+#+END_SRC
+
+in console:
+#+BEGIN_SRC elixir
+Nadia.set_webhook url: "https://${the address that ngrok provided}.ngrok.io/api/rss"
+#+END_SRC
+
+try to hit start in your bot
+
+Currently, it will show some warnings. I will fixed it soon
+
+** Setting up twitter app
+- start to setup
+[[https://developer.twitter.com/en/apps]]
+
+- use ExTwitter
+
+ - to record the last id when the last update
+  #+BEGIN_SRC elixir
+ExTwitter.user_timeline([screen_name: "twitter-engineering", since_id: 1231900132011982848])
+  #+END_SRC
+
+  - get list timeline
+    #+BEGIN_SRC elixir
+ExTwitter.list_timeline("twitter-engineering", "twitter", count: 1)
+    #+END_SRC
+** Sci-hub api
+=sci-hub.tw/ + doi= to download
+
+Because I want to read the paper from the rss feed directly in telegram, so I
+add this function...
+** telegram feature
+- [ ] automatically turn rss feed article into instant view
+- [ ] [[https://github.com/vah7id/instantview][GitHub - vah7id/instantview: Telegram Instant view template generator
+  tool]]
+** cronjob
+you can set up your own schedule to get new feeds in =config.exs=.
+It will send updates every 30 minutes.
+
+#+BEGIN_SRC elixir
+config :tw_mind_bot, TwMindBot.Scheduler, jobs: [
+# {"* * * * *", fn -> File.write!("task.txt", "#{Timex.now}\n", [:append]) end }
+  {"*/30 * * * *", {TwMindBot.Bot, :send_update_feeds, []} },
+  {"*/30 * * * *", {TwMindBot.Bot, :send_update_tweets, []} },
+]
+#+END_SRC
+
+- see more in [[https://github.com/quantum-elixir/quantum-core][GitHub - quantum-elixir/quantum-core: Cron-like job scheduler for
+Elixir]]
+- and setup [[https://www.wikiwand.com/en/Cron][cron - Wikiwand]]
+** deploy
+The best way to deploy is on your own server or vps; and [[https://gigalixir.com/][Gigalixir: Elixir's
+Platform as a Service]] provide 1 tier free for 24hrs. It is perfect to run this
+bot. I follow [[https://elixircasts.io/deploying-with-gigalixir-%28revised%29][Deploying with Gigalixir (Revised) - ElixirCasts]] to deploy.
+* This bot's instruction
+#+BEGIN_SRC
+start - add your account to the bot
+sub - [ url ] [ entryname ]: subscribe feeds by url and its name
+listrss - []: list all rss feeds
+removerss - [entryname]: remove feeds by its name
+fetchrss - [entryname] [count]: manually fetch specific rss; max count to 10
+addtwitter - [account]: add by account name
+addtwlist - [username]/[listname]: add  twitter list to follow
+removetw - [account]: remove twitter account
+rmtwlist - [username]/[listname]: remove  twitter list to follow
+listtwitter - []: list all twitters and twitter lists
+doi - []: get the paper's pdf by sending doi
+#+END_SRC
+* Nice to have (maybe in the future)
+** post to channel
+- [ ] can post to channel automatically
+- [ ] one person can have multiple channel
+- [ ] can setup different channel
+- [ ] [[https://medium.com/@xabaras/sending-a-message-to-a-telegram-channel-the-easy-way-eb0a0b32968][Sending a message to a Telegram channel the easy way]]
+  #+BEGIN_SRC
+https://api.telegram.org/bot[BOT_API_KEY]/sendMessage?chat_id=[MY_CHANNEL_NAME]&text=[MY_MESSAGE_TEXT]
+  #+END_SRC
