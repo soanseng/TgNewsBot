@@ -237,7 +237,12 @@ defmodule TwMindBot.Bot do
   return -1, 0, 1
   """
   def filter_new_feed?(fiet_item, feed) do
-    post_time = Timex.parse!(fiet_item.published_at, "{RFC1123}") |> Timex.to_naive_datetime
+    post_time = case Timex.parse(fiet_item.published_at, "{RFC1123}") do
+                  {:ok, parsed} -> parsed
+                  {:error, _} ->Timex.parse!(fiet_item.published_at, "{RFC3339}")
+                end
+                |> Timex.to_naive_datetime
+
     Timex.compare(post_time, feed.last_update) == 1
   end
 
