@@ -92,4 +92,4 @@ doi - []: get the paper's pdf by sending doi
 - [ ] [[https://medium.com/@xabaras/sending-a-message-to-a-telegram-channel-the-easy-way-eb0a0b32968][Sending a message to a Telegram channel the easy way]]
   #+BEGIN_SRC
 https://api.telegram.org/bot[BOT_API_KEY]/sendMessage?chat_id=[MY_CHANNEL_NAME]&text=[MY_MESSAGE_TEXT]
-  #+END_SRC
+  #+END_SR
